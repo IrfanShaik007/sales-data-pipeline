@@ -1,0 +1,6 @@
+faker
+pandas
+snowflake-connector-python
+dbt-core==1.9.4
+dbt-postgres
+dbt-snowflake==1.9.3

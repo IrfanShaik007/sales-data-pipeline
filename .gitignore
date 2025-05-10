@@ -1,0 +1,5 @@
+airflow_docker/logs/
+sales-data-pipeline/
+superset/
+*.pyc
+__pycache__/

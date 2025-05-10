@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: raw_sales
+    database: SALES_ANALYTICS   # Your database
+    schema: raw       # Your schema
+    tables:
+      - name: raw_sales_data
+        description: "Raw sales data table loaded into Snowflake"

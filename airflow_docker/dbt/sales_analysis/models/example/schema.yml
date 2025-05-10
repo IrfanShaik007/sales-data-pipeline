@@ -1,0 +1,90 @@
+
+version: 2
+
+models:
+  - name: my_first_dbt_model
+    description: "A starter dbt model"
+    columns:
+      - name: id
+        description: "The primary key for this table"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: my_second_dbt_model
+    description: "A starter dbt model"
+    columns:
+      - name: id
+        description: "The primary key for this table"
+        data_tests:
+          - unique
+          - not_null
+  
+
+
+  - name: raw_sales
+    database: SALES_ANALYTICS
+    description: "A sales dbt model"
+    columns:
+      - name: sale_id
+        description: "Unique identifier for each sale"
+        tests:
+          - unique
+          - not_null
+
+      - name: product_id
+        description: "Identifier for the product sold"
+        tests:
+          - not_null
+
+      - name: product_name
+        description: "Name of the product sold"
+
+      - name: category
+        description: "Category to which the product belongs"
+
+      - name: price
+        description: "Unit price of the product sold"
+
+      - name: quantity
+        description: "Quantity of the product sold"
+
+      - name: total_price
+        description: "Total price for the sale (price * quantity)"
+        tests:
+          - not_null
+
+      - name: timestamp
+        description: "Timestamp when the sale occurred"
+        tests:
+          - not_null
+        
+
+  - name: sales_summary
+    description: "Aggregated sales data by category"
+    columns:
+      - name: category
+        description: "Product category"
+      - name: total_sales
+        description: "Total number of sales (records)"
+      - name: total_quantity
+        description: "Total quantity sold"
+      - name: total_revenue
+        description: "Total revenue from sales"
+      - name: avg_unit_price
+        description: "Average unit price of products in the category"
+
+
+  - name: daily_sales
+    description: "Daily aggregated sales metrics"
+    columns:
+      - name: sale_date
+        description: "Date of the sale"
+      - name: total_sales
+        description: "Sum of all sales on the date"
+      - name: total_transactions
+        description: "Number of transactions"
+      - name: total_units_sold
+        description: "Total quantity of products sold"
+
+    

@@ -1,0 +1,98 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:6.2
+    ports:
+      - "6379:6379"
+
+  airflow-webserver:
+    build: .
+    image: custom-airflow:2.8.3
+    command: webserver
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__CORE__FERNET_KEY=S1KMcvi_xzsuMbl3F8aROP4XXK99vmctTtlkehmXxhk=
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./data:/opt/airflow/data
+      - ./dbt:/opt/airflow/dbt
+      - "/c/Users/Irfan Shareef/.dbt:/home/airflow/.dbt"
+      
+    healthcheck:
+      test: ["CMD-SHELL", "airflow db check"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  airflow-scheduler:
+    build: .
+    image: custom-airflow:2.8.3
+    command: scheduler
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__CORE__FERNET_KEY=S1KMcvi_xzsuMbl3F8aROP4XXK99vmctTtlkehmXxhk=
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./data:/opt/airflow/data
+      - ./dbt:/opt/airflow/dbt
+      - "/c/Users/Irfan Shareef/.dbt:/home/airflow/.dbt"
+    healthcheck:
+      test: ["CMD-SHELL", "airflow scheduler health"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  airflow-worker:
+    build: .
+    image: custom-airflow:2.8.3
+    command: celery worker
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+      - airflow-scheduler
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__CORE__FERNET_KEY=S1KMcvi_xzsuMbl3F8aROP4XXK99vmctTtlkehmXxhk=
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./data:/opt/airflow/data
+      - ./dbt:/opt/airflow/dbt
+      - "/c/Users/Irfan Shareef/.dbt:/home/airflow/.dbt"
+volumes:
+  postgres_data:
